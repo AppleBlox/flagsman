@@ -1,0 +1,18 @@
+2024-12-18 18:45:40,844 - root - INFO - Starting FlagsMan application
+2024-12-18 18:45:40,847 - root - INFO - Data files verification completed
+2024-12-18 18:45:40,849 - root - INFO - Successfully initialized cache manager
+2024-12-18 18:45:40,854 - root - INFO - Starting Flask app on 0.0.0.0:8000
+2024-12-18 18:45:40,904 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.4.10:8000
+2024-12-18 18:45:40,905 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-12-18 18:45:45,612 - werkzeug - INFO - 127.0.0.1 - - [18/Dec/2024 18:45:45] "GET / HTTP/1.1" 200 -
+2024-12-18 18:45:45,619 - werkzeug - INFO - 127.0.0.1 - - [18/Dec/2024 18:45:45] "[35m[1mGET /api/application/PCDesktopClient HTTP/1.1[0m" 500 -
+2024-12-18 18:45:45,873 - werkzeug - INFO - 127.0.0.1 - - [18/Dec/2024 18:45:45] "[35m[1mGET /api/application/MacDesktopClient HTTP/1.1[0m" 500 -
+2024-12-18 18:45:45,878 - werkzeug - INFO - 127.0.0.1 - - [18/Dec/2024 18:45:45] "[35m[1mGET /api/application/iOSApp HTTP/1.1[0m" 500 -
+2024-12-18 18:45:46,133 - werkzeug - INFO - 127.0.0.1 - - [18/Dec/2024 18:45:46] "[31m[1mGET /api/application/InvalidApp HTTP/1.1[0m" 400 -
+2024-12-18 18:45:46,138 - core.flag_service - ERROR - Error checking application flags: Event loop is closed
+2024-12-18 18:45:46,139 - werkzeug - INFO - 127.0.0.1 - - [18/Dec/2024 18:45:46] "[35m[1mPOST /api/check HTTP/1.1[0m" 500 -
+2024-12-18 18:46:42,725 - asyncio - ERROR - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x0000028A48E88980>

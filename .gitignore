@@ -5,7 +5,6 @@ __pycache__/
 
 *.so
 
-
 .Python
 build/
 develop-eggs/
@@ -37,7 +36,6 @@ htmlcov/
 *.py,cover
 .hypothesis/
 
-
 .cache/
 
 .ipynb_checkpoints
@@ -54,5 +52,5 @@ venv.bak/
 *.swp
 *.swo
 
-
 *.log
+logs/*

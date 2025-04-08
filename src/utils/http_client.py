@@ -21,12 +21,14 @@ class HTTPClient:
             )
         return self._session
         
-    async def get(self, url: str) -> Optional[dict]:
+    async def get(self, url: str, raw: bool = False) -> Optional[Any]:
         session = await self._get_session()
         
         try:
             async with session.get(url) as response:
                 if response.status == 200:
+                    if raw:
+                        return await response.text()
                     return await response.json()
                     
                 if response.status != 404:

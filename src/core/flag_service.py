@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 class FlagService:
     _instance = None
     _lock = Lock()
+    
+    VALID_FLAG_PREFIXES = ['DFFlag', 'FInt', 'FFlag', 'FString', 'BFFlag']
 
     def __init__(self):
         if FlagService._instance is not None:
@@ -45,9 +47,28 @@ class FlagService:
             self._risk_list = set()
 
     def _parse_flag(self, name: str, value: str, timestamp: datetime) -> Flag:
+        enabled = True
+        
+        if name.startswith(('DFFlag', 'FFlag', 'BFFlag')):
+            enabled = str(value).lower() == "true"
+        elif name.startswith('FInt'):
+            try:
+                # i didn't know some flags had were semicolon separated
+                if ";" in value:
+                    first_value = value.split(";")[0].strip()
+                    enabled = int(first_value) != 0
+                else:
+                    enabled = int(value) != 0
+            except ValueError:
+                # log 
+                logger.error(f"Invalid value for FInt flag {name}: {value}")
+                enabled = False
+        elif name.startswith('FString'):
+            enabled = value != ""
+            
         return Flag(
             name=name,
-            enabled=str(value).lower() == "true",
+            enabled=enabled,
             last_updated=timestamp
         )
 
@@ -64,7 +85,7 @@ class FlagService:
                         
                     flags = []
                     for key, value in app_data.get("applicationSettings", {}).items():
-                        if key.startswith("DFFlag"):
+                        if any(key.startswith(prefix) for prefix in self.VALID_FLAG_PREFIXES):
                             flags.append(self._parse_flag(key, value, timestamp))
                     
                     if flags:

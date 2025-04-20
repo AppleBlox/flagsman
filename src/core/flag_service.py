@@ -12,7 +12,8 @@ class FlagService:
     _instance = None
     _lock = Lock()
     
-    VALID_FLAG_PREFIXES = ['DFFlag', 'FInt', 'FFlag', 'FString', 'BFFlag']
+    # In FlagService class
+    VALID_FLAG_PREFIXES = ['DFFlag', 'FFlag', 'BFFlag', 'FInt', 'DFInt', 'FString', 'DFString', "SFFlag"]
 
     def __init__(self):
         if FlagService._instance is not None:

@@ -20,7 +20,8 @@ class FlagFetcher:
         "XboxClient",
         "PCStudioApp",
         "MacStudioApp",
-        "UWPApp"
+        "UWPApp",
+        "ALL"
     }
 
     def __init__(self):
@@ -52,30 +53,36 @@ class FlagFetcher:
         results = {}
 
         try:
+            # First, fetch GitHub flags
+            github_flags = await self.fetch_flags_from_github()
+            logger.info(f"Fetched {len(github_flags)} flags from GitHub")
 
-            tasks = [self.fetch_application_flags(client) for client in self.VALID_CLIENTS]
+            # Create the ALL application specifically from GitHub flags
+            all_app = {"applicationSettings": {}}
+            all_app["applicationSettings"] = github_flags.copy()  # Direct assignment
+            results["ALL"] = all_app
+
+            # Now fetch regular applications
+            regular_clients = [c for c in self.VALID_CLIENTS if c != "ALL"]
+            tasks = [self.fetch_application_flags(client) for client in regular_clients]
             responses = await self._http.gather(*tasks)
 
-            for client, response in zip(self.VALID_CLIENTS, responses):
+            # Process regular applications
+            for client, response in zip(regular_clients, responses):
                 if response:
+                    # Ensure applicationSettings exists
+                    if 'applicationSettings' not in response:
+                        response['applicationSettings'] = {}
+                    
+                    # Merge GitHub flags into this application's flags
+                    for flag_name, flag_value in github_flags.items():
+                        if flag_name not in response['applicationSettings']:
+                            response['applicationSettings'][flag_name] = flag_value
+                    
                     results[client] = response
 
-            github_flags = await self.fetch_flags_from_github()
-
-            if github_flags:
-                for client in self.VALID_CLIENTS:
-                    if client in results:
-
-                        if 'applicationSettings' not in results[client]:
-                            results[client]['applicationSettings'] = {}
-
-                        results[client]['applicationSettings'].update(github_flags)
-
             self._last_fetch = datetime.now()
-            logger.info(f"Completed flag fetch for {len(results)} clients")
-
             self.save_flags(results)
-
             return results
 
         except Exception as e:
@@ -95,32 +102,30 @@ class FlagFetcher:
                 if not line or line.startswith('#'):
                     continue
 
-                if '[C++]' in line:
-                    flag_name = line.split('[C++]')[1].strip()
-                elif '[Lua]' in line:
-                    flag_name = line.split('[Lua]')[1].strip()
-                else:
-                    flag_name = line
-
-                if not flag_name:
-                    continue
-
-                if flag_name.startswith('DFFlag') or flag_name.startswith('FFlag') or flag_name.startswith('BFFlag'):
-                    flags[flag_name] = "false"
-                elif flag_name.startswith('FInt'):
-                    flags[flag_name] = "0"
-                elif flag_name.startswith('FString'):
-                    flags[flag_name] = ""
-                else:
-                    flags[flag_name] = "false"
-
-            logger.info(f"Successfully fetched {len(flags)} flags from GitHub")
+                # Check for pattern [Type] FlagName
+                if '] ' in line and line.startswith('['):
+                    type_end = line.find('] ')
+                    if type_end > 0:
+                        flag_name = line[type_end + 2:].strip()
+                        
+                        # Only add the flag if it has a recognized prefix
+                        if any(flag_name.startswith(prefix) for prefix in [
+                            'DFFlag', 'FFlag', 'BFFlag', 'FInt', 'DFInt', 'FString', 'DFString'
+                        ]):
+                            # Set appropriate default value based on prefix
+                            if flag_name.startswith(('DFInt', 'FInt')):
+                                flags[flag_name] = "0"
+                            elif flag_name.startswith(('DFString', 'FString')):
+                                flags[flag_name] = ""
+                            else:  # DFFlag, FFlag, etc.
+                                flags[flag_name] = "false"
+                
             return flags
 
         except Exception as e:
             logger.error(f"Failed to fetch flags from GitHub: {str(e)}")
             return {}
-
+        
     def save_flags(self, flags_data: Dict[str, dict]) -> bool:
         try:
             os.makedirs('data/cache', exist_ok=True)

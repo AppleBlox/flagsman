@@ -20,18 +20,14 @@ RISK_LIST_PATH = os.path.join(DATA_DIR, 'risklist.json')
 
 VALID_APPLICATIONS: List[str] = [
     "PCDesktopClient",
-    "MacDesktopClient",
-    "PlayStationClient",
-    "XboxClient",
-    "iOSApp",
-    "UWPApp",
+    "MacDesktopClient", 
     "AndroidApp",
+    "iOSApp",
+    "XboxClient",
     "PCStudioApp",
     "MacStudioApp",
-    "PCStudioBootstrapper",
-    "MacStudioBootstrapper",
-    "PCClientBootstrapper",
-    "MacClientBootstrapper"
+    "UWPApp",
+    "ALL"
 ]
 
 
